@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -16,10 +15,10 @@ from news_aggregator.clients.nyt_client import (
 )
 from news_aggregator.models.article import Article
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _mock_response(payload: dict, status: int = 200) -> MagicMock:
     resp = MagicMock()
@@ -48,7 +47,9 @@ TOP_STORIES_PAYLOAD = {
     ]
 }
 
-POPULAR_PAYLOAD = {"results": [{"title": "Popular", "abstract": "Pop abstract.", "url": "https://nytimes.com/pop"}]}
+POPULAR_PAYLOAD = {
+    "results": [{"title": "Popular", "abstract": "Pop abstract.", "url": "https://nytimes.com/pop"}]
+}
 
 SEARCH_PAYLOAD = {
     "response": {
@@ -69,6 +70,7 @@ SEARCH_PAYLOAD = {
 # NYTimesClient init
 # ---------------------------------------------------------------------------
 
+
 class TestNYTimesClientInit:
     def test_raises_without_api_key(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("NYT_API_KEY", raising=False)
@@ -88,6 +90,7 @@ class TestNYTimesClientInit:
 # ---------------------------------------------------------------------------
 # get_top_stories
 # ---------------------------------------------------------------------------
+
 
 class TestGetTopStories:
     def test_returns_articles(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -110,6 +113,7 @@ class TestGetTopStories:
 # get_most_popular
 # ---------------------------------------------------------------------------
 
+
 class TestGetMostPopular:
     def test_returns_articles(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("NYT_API_KEY", "key")
@@ -122,6 +126,7 @@ class TestGetMostPopular:
 # ---------------------------------------------------------------------------
 # get_esg_articles — including the null-docs regression
 # ---------------------------------------------------------------------------
+
 
 class TestGetEsgArticles:
     def test_returns_articles(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -161,6 +166,7 @@ class TestGetEsgArticles:
 # Rate-limit retry
 # ---------------------------------------------------------------------------
 
+
 class TestRetryBehaviour:
     def test_retries_on_429(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("NYT_API_KEY", "key")
@@ -170,7 +176,7 @@ class TestRetryBehaviour:
         ok = _mock_response({"results": []})
 
         with patch.object(client._session, "get", side_effect=[rate_limited, ok]):
-            with patch("time.sleep"):   # don't actually wait
+            with patch("time.sleep"):  # don't actually wait
                 articles = client.get_top_stories("home")
         assert articles == []
 
@@ -178,6 +184,7 @@ class TestRetryBehaviour:
 # ---------------------------------------------------------------------------
 # File I/O helpers
 # ---------------------------------------------------------------------------
+
 
 class TestSaveLoadArticles:
     def test_roundtrip(self, tmp_path: Path, article: Article) -> None:
@@ -201,6 +208,7 @@ class TestSaveLoadArticles:
 # ---------------------------------------------------------------------------
 # format_article
 # ---------------------------------------------------------------------------
+
 
 class TestFormatArticle:
     def test_brief_contains_title(self, article: Article) -> None:

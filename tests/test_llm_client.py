@@ -15,10 +15,10 @@ from news_aggregator.clients.llm_client import (
 )
 from news_aggregator.models.article import Article
 
-
 # ---------------------------------------------------------------------------
 # LLMClient initialisation
 # ---------------------------------------------------------------------------
+
 
 class TestLLMClientInit:
     def test_unknown_provider_raises(self) -> None:
@@ -68,10 +68,9 @@ class TestLLMClientInit:
 # LLMClient.generate
 # ---------------------------------------------------------------------------
 
+
 class TestLLMClientGenerate:
-    def test_returns_placeholder_when_no_provider(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_placeholder_when_no_provider(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         with patch(
@@ -90,9 +89,7 @@ class TestLLMClientGenerate:
         client.provider = mock_provider
         assert client.generate("prompt") == "Great summary"
 
-    def test_falls_back_on_provider_exception(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_falls_back_on_provider_exception(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
         client = LLMClient()
         mock_provider = MagicMock()
@@ -106,6 +103,7 @@ class TestLLMClientGenerate:
 # ---------------------------------------------------------------------------
 # Prompt builders
 # ---------------------------------------------------------------------------
+
 
 class TestCreateSummaryPrompt:
     def test_brief_contains_required_sections(self, articles: list[Article]) -> None:
@@ -149,6 +147,7 @@ class TestCreateDailyDigestPrompt:
 # summarize_articles
 # ---------------------------------------------------------------------------
 
+
 class TestSummarizeArticles:
     def test_empty_list_returns_no_articles_message(self) -> None:
         result = summarize_articles([], "world")
@@ -169,6 +168,7 @@ class TestSummarizeArticles:
 # ---------------------------------------------------------------------------
 # generate_with_retry
 # ---------------------------------------------------------------------------
+
 
 class TestGenerateWithRetry:
     def test_returns_on_first_success(self) -> None:

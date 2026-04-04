@@ -16,10 +16,10 @@ from news_aggregator.cli.read_news import (
     read_section,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _write_digest(path: Path, name: str, data: dict) -> Path:
     """Write a JSON digest file and return its path."""
@@ -65,6 +65,7 @@ SAMPLE_DIGEST = {
 # get_latest_digest
 # ---------------------------------------------------------------------------
 
+
 class TestGetLatestDigest:
     def test_returns_none_when_no_files(self, tmp_path: Path) -> None:
         with patch("news_aggregator.cli.read_news.DATA_DIR", tmp_path):
@@ -90,6 +91,7 @@ class TestGetLatestDigest:
 # get_latest_html
 # ---------------------------------------------------------------------------
 
+
 class TestGetLatestHtml:
     def test_returns_none_when_no_files(self, tmp_path: Path) -> None:
         with patch("news_aggregator.cli.read_news.DATA_DIR", tmp_path):
@@ -109,23 +111,39 @@ class TestGetLatestHtml:
 # display_article_plain
 # ---------------------------------------------------------------------------
 
+
 class TestDisplayArticlePlain:
     def test_prints_title_and_url(self, capsys: pytest.CaptureFixture) -> None:
-        article = {"title": "My Title", "url": "https://example.com", "abstract": "Summary.", "published_date": "2026-04-04"}
+        article = {
+            "title": "My Title",
+            "url": "https://example.com",
+            "abstract": "Summary.",
+            "published_date": "2026-04-04",
+        }
         display_article_plain(article)
         out = capsys.readouterr().out
         assert "My Title" in out
         assert "https://example.com" in out
 
     def test_truncates_date_to_10_chars(self, capsys: pytest.CaptureFixture) -> None:
-        article = {"title": "T", "url": "", "abstract": "", "published_date": "2026-04-04T12:00:00-05:00"}
+        article = {
+            "title": "T",
+            "url": "",
+            "abstract": "",
+            "published_date": "2026-04-04T12:00:00-05:00",
+        }
         display_article_plain(article)
         out = capsys.readouterr().out
         assert "2026-04-04" in out
         assert "T12:00:00" not in out
 
     def test_falls_back_headline_key(self, capsys: pytest.CaptureFixture) -> None:
-        article = {"headline": {"main": "Search Title"}, "snippet": "Snip.", "web_url": "https://nyt.com/s", "pub_date": "2026-04-04"}
+        article = {
+            "headline": {"main": "Search Title"},
+            "snippet": "Snip.",
+            "web_url": "https://nyt.com/s",
+            "pub_date": "2026-04-04",
+        }
         display_article_plain(article)
         out = capsys.readouterr().out
         assert "Search Title" in out
@@ -139,6 +157,7 @@ class TestDisplayArticlePlain:
 # ---------------------------------------------------------------------------
 # list_sections
 # ---------------------------------------------------------------------------
+
 
 class TestListSections:
     def test_plain_output_contains_section_names(self, capsys: pytest.CaptureFixture) -> None:
@@ -166,6 +185,7 @@ class TestListSections:
 # read_section
 # ---------------------------------------------------------------------------
 
+
 class TestReadSection:
     def test_missing_section_prints_not_found(self, capsys: pytest.CaptureFixture) -> None:
         with patch("news_aggregator.cli.read_news._RICH", False):
@@ -182,7 +202,10 @@ class TestReadSection:
     def test_limit_is_respected(self, capsys: pytest.CaptureFixture) -> None:
         big_section = {
             "sections": {
-                "world": [{"title": f"Article {i}", "url": "", "abstract": "", "published_date": ""} for i in range(10)]
+                "world": [
+                    {"title": f"Article {i}", "url": "", "abstract": "", "published_date": ""}
+                    for i in range(10)
+                ]
             }
         }
         with patch("news_aggregator.cli.read_news._RICH", False):

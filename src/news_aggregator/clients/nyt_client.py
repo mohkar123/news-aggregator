@@ -17,11 +17,32 @@ _BASE = "https://api.nytimes.com/svc"
 
 # Sections available via the Top Stories API
 TOP_STORY_SECTIONS = [
-    "arts", "automobiles", "books", "business", "fashion", "food",
-    "health", "home", "insider", "magazine", "movies", "nyregion",
-    "obituaries", "opinion", "politics", "realestate", "science",
-    "sports", "sundayreview", "technology", "theater", "t-magazine",
-    "travel", "upshot", "us", "world",
+    "arts",
+    "automobiles",
+    "books",
+    "business",
+    "fashion",
+    "food",
+    "health",
+    "home",
+    "insider",
+    "magazine",
+    "movies",
+    "nyregion",
+    "obituaries",
+    "opinion",
+    "politics",
+    "realestate",
+    "science",
+    "sports",
+    "sundayreview",
+    "technology",
+    "theater",
+    "t-magazine",
+    "travel",
+    "upshot",
+    "us",
+    "world",
 ]
 
 
@@ -31,9 +52,7 @@ class NYTimesClient:
     def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.environ.get("NYT_API_KEY", "")
         if not self.api_key:
-            raise ValueError(
-                "NYT_API_KEY not set. Add it to your .env file or pass it explicitly."
-            )
+            raise ValueError("NYT_API_KEY not set. Add it to your .env file or pass it explicitly.")
         self._session = requests.Session()
 
     # ------------------------------------------------------------------
@@ -115,8 +134,8 @@ class NYTimesClient:
 
         begin_date = (datetime.now(timezone.utc) - timedelta(days=days_back)).strftime("%Y%m%d")
         query = (
-            "ESG OR sustainability OR \"climate change\" "
-            "OR \"renewable energy\" OR \"carbon emissions\" OR governance"
+            'ESG OR sustainability OR "climate change" '
+            'OR "renewable energy" OR "carbon emissions" OR governance'
         )
         url = f"{_BASE}/search/v2/articlesearch.json"
         data = self._get(
@@ -161,7 +180,7 @@ class NYTimesClient:
                 if attempt == retries - 1:
                     raise
                 logger.warning("Request failed (attempt {}/{}): {}", attempt + 1, retries, exc)
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
 
         return {}  # unreachable, satisfies mypy
 
@@ -169,6 +188,7 @@ class NYTimesClient:
 # ---------------------------------------------------------------------------
 # File I/O helpers (used by Airflow tasks to persist between task boundaries)
 # ---------------------------------------------------------------------------
+
 
 def save_articles(articles: list[Article], filepath: str) -> None:
     """Serialise a list of articles to a JSON file.
@@ -199,6 +219,7 @@ def load_articles(filepath: str) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Convenience helpers
 # ---------------------------------------------------------------------------
+
 
 def format_article(article: Article, style: str = "brief") -> str:
     """Render an :class:`Article` as a human-readable string.

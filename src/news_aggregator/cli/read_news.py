@@ -15,7 +15,6 @@ import argparse
 import json
 import webbrowser
 from pathlib import Path
-from typing import Optional
 
 try:
     from rich.console import Console
@@ -35,13 +34,14 @@ DATA_DIR = Path(__file__).parents[3] / "data" / "articles"
 # Locate digest files
 # ---------------------------------------------------------------------------
 
-def get_latest_digest() -> Optional[Path]:
+
+def get_latest_digest() -> Path | None:
     """Return the most recent combined digest JSON file, or None."""
     files = sorted(DATA_DIR.glob("combined_*.json"), reverse=True)
     return files[0] if files else None
 
 
-def get_latest_html() -> Optional[Path]:
+def get_latest_html() -> Path | None:
     """Return the most recent HTML digest file, or None."""
     files = sorted(DATA_DIR.glob("digest_*.html"), reverse=True)
     return files[0] if files else None
@@ -50,6 +50,7 @@ def get_latest_html() -> Optional[Path]:
 # ---------------------------------------------------------------------------
 # Display helpers
 # ---------------------------------------------------------------------------
+
 
 def display_article_rich(article: dict, console: Console) -> None:  # type: ignore[valid-type]
     """Render a single article using Rich formatting."""
@@ -85,7 +86,7 @@ def display_article_plain(article: dict) -> None:
     print(f"  {url}\n")
 
 
-def list_sections(data: dict, console: Optional[Console] = None) -> None:  # type: ignore[valid-type]
+def list_sections(data: dict, console: Console | None = None) -> None:  # type: ignore[valid-type]
     """Print a table of available sections and their article counts."""
     if _RICH and console:
         table = Table(title="Available Sections")
@@ -104,7 +105,7 @@ def read_section(
     data: dict,
     section: str,
     limit: int = 10,
-    console: Optional[Console] = None,  # type: ignore[valid-type]
+    console: Console | None = None,  # type: ignore[valid-type]
 ) -> None:
     """Print articles from a named section."""
     sections = data.get("sections", {})
@@ -115,7 +116,8 @@ def read_section(
 
     articles = sections[section][:limit]
     if _RICH and console:
-        console.print(f"\n[bold magenta]  {section.upper()} ({len(articles)} articles)[/bold magenta]\n")
+        header = f"\n[bold magenta]  {section.upper()} ({len(articles)} articles)[/bold magenta]\n"
+        console.print(header)
         for article in articles:
             display_article_rich(article, console)
     else:
@@ -128,7 +130,8 @@ def read_section(
 # Interactive mode
 # ---------------------------------------------------------------------------
 
-def interactive_mode(data: dict, console: Optional[Console] = None) -> None:  # type: ignore[valid-type]
+
+def interactive_mode(data: dict, console: Console | None = None) -> None:  # type: ignore[valid-type]
     """Run a simple interactive menu for browsing the digest."""
     sections = list(data.get("sections", {}).keys())
 
@@ -170,6 +173,7 @@ def interactive_mode(data: dict, console: Optional[Console] = None) -> None:  # 
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     """CLI entry point for ``read-news``."""
     parser = argparse.ArgumentParser(description="Read your NYTimes news digest")
@@ -207,7 +211,7 @@ def main() -> None:
         console.print(f"[dim]Generated: {data['generated_at']}[/dim]")
         console.print(f"[dim]Total articles: {data['total_articles']}[/dim]\n")
     else:
-        print(f"\n  NYTimes Digest")
+        print("\n  NYTimes Digest")
         print(f"Generated: {data['generated_at']}")
         print(f"Total articles: {data['total_articles']}\n")
 

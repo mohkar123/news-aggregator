@@ -20,16 +20,15 @@ from __future__ import annotations
 import os
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from loguru import logger
 
 from news_aggregator.models.article import Article
 
-
 # ---------------------------------------------------------------------------
 # Abstract base
 # ---------------------------------------------------------------------------
+
 
 class BaseLLMProvider(ABC):
     """Common interface all providers must implement."""
@@ -49,12 +48,13 @@ class BaseLLMProvider(ABC):
 # Anthropic
 # ---------------------------------------------------------------------------
 
+
 class AnthropicProvider(BaseLLMProvider):
     """Anthropic Claude API provider."""
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "claude-haiku-4-5-20251001",
     ) -> None:
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -87,12 +87,13 @@ class AnthropicProvider(BaseLLMProvider):
 # OpenAI
 # ---------------------------------------------------------------------------
 
+
 class OpenAIProvider(BaseLLMProvider):
     """OpenAI GPT API provider."""
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "gpt-4o-mini",
     ) -> None:
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
@@ -125,6 +126,7 @@ class OpenAIProvider(BaseLLMProvider):
 # Ollama (local)
 # ---------------------------------------------------------------------------
 
+
 class OllamaProvider(BaseLLMProvider):
     """Ollama local LLM provider (free, no API key required)."""
 
@@ -139,6 +141,7 @@ class OllamaProvider(BaseLLMProvider):
     def is_available(self) -> bool:
         try:
             import requests
+
             response = requests.get(f"{self.base_url}/api/tags", timeout=2)
             return response.status_code == 200
         except Exception:
@@ -165,6 +168,7 @@ class OllamaProvider(BaseLLMProvider):
 # Unified client
 # ---------------------------------------------------------------------------
 
+
 class LLMClient:
     """Unified LLM client with automatic provider selection.
 
@@ -177,9 +181,9 @@ class LLMClient:
         "ollama": OllamaProvider,
     }
 
-    def __init__(self, provider: Optional[str] = None, **kwargs: object) -> None:
+    def __init__(self, provider: str | None = None, **kwargs: object) -> None:
         self.provider_name: str = provider or "none"
-        self.provider: Optional[BaseLLMProvider] = None
+        self.provider: BaseLLMProvider | None = None
         self.kwargs = kwargs
 
         if provider:
@@ -241,6 +245,7 @@ class LLMClient:
 # ---------------------------------------------------------------------------
 # Prompt builders
 # ---------------------------------------------------------------------------
+
 
 def create_summary_prompt(
     articles: list[Article],
@@ -347,8 +352,7 @@ def create_daily_digest_prompt(section_summaries: dict[str, str]) -> str:
         Prompt string.
     """
     sections_text = "\n\n".join(
-        f"### {section.upper()}\n{summary}"
-        for section, summary in section_summaries.items()
+        f"### {section.upper()}\n{summary}" for section, summary in section_summaries.items()
     )
 
     return f"""You are creating a daily news digest combining multiple sections.
@@ -372,11 +376,12 @@ Keep it concise (300-400 words) and engaging.
 # High-level helpers
 # ---------------------------------------------------------------------------
 
+
 def summarize_articles(
     articles: list[Article],
     section: str,
     style: str = "brief",
-    provider: Optional[str] = None,
+    provider: str | None = None,
 ) -> str:
     """Summarize a list of articles using an LLM.
 
@@ -414,7 +419,7 @@ def generate_with_retry(
     Returns:
         Generated text, or a failure notice after all retries are exhausted.
     """
-    last_error: Optional[Exception] = None
+    last_error: Exception | None = None
 
     for attempt in range(max_retries):
         try:
@@ -423,7 +428,7 @@ def generate_with_retry(
             last_error = exc
             logger.warning("Attempt {}/{} failed: {}", attempt + 1, max_retries, exc)
             if attempt < max_retries - 1:
-                sleep_time = delay * (2 ** attempt)
+                sleep_time = delay * (2**attempt)
                 logger.info("Retrying in {}s…", sleep_time)
                 time.sleep(sleep_time)
 

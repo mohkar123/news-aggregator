@@ -19,9 +19,10 @@ from __future__ import annotations
 import os
 import smtplib
 import ssl
+from collections.abc import Sequence
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Any, Sequence
+from typing import Any
 
 from loguru import logger
 
@@ -29,10 +30,7 @@ from loguru import logger
 def _require_env(key: str) -> str:
     value = os.environ.get(key, "")
     if not value:
-        raise EnvironmentError(
-            f"Required environment variable '{key}' is not set. "
-            "Check your .env file."
-        )
+        raise OSError(f"Required environment variable '{key}' is not set. Check your .env file.")
     return value
 
 
@@ -64,9 +62,11 @@ def build_html_digest(section_summaries: dict[str, str], date_str: str) -> str:
 <head>
 <meta charset="UTF-8">
 <style>
-  body {{ font-family: Georgia, serif; max-width: 720px; margin: 0 auto; padding: 2em; background: #fafafa; }}
+  body {{ font-family: Georgia, serif; max-width: 720px; margin: 0 auto;
+          padding: 2em; background: #fafafa; }}
   h1   {{ color: #1a1a2e; }}
-  .footer {{ color: #888; font-size: 0.85em; margin-top: 3em; border-top: 1px solid #ddd; padding-top: 1em; }}
+  .footer {{ color: #888; font-size: 0.85em; margin-top: 3em;
+             border-top: 1px solid #ddd; padding-top: 1em; }}
 </style>
 </head>
 <body>
@@ -134,9 +134,7 @@ def test_email_config() -> dict[str, Any]:
     required = ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_TO"]
     configured = all(os.environ.get(k) for k in required)
     recipients = [
-        addr.strip()
-        for addr in os.environ.get("EMAIL_TO", "").split(",")
-        if addr.strip()
+        addr.strip() for addr in os.environ.get("EMAIL_TO", "").split(",") if addr.strip()
     ]
     return {
         "configured": configured,

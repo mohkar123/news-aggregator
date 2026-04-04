@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from news_aggregator.models.article import Article, Digest, DigestSection
 
 

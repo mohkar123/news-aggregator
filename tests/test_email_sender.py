@@ -9,13 +9,15 @@ import pytest
 from news_aggregator.email.sender import (
     build_html_digest,
     send_digest,
+)
+from news_aggregator.email.sender import (
     test_email_config as get_email_config,
 )
-
 
 # ---------------------------------------------------------------------------
 # build_html_digest
 # ---------------------------------------------------------------------------
+
 
 class TestBuildHtmlDigest:
     def test_contains_date(self, section_summaries: dict[str, str]) -> None:
@@ -45,6 +47,7 @@ class TestBuildHtmlDigest:
 # test_email_config
 # ---------------------------------------------------------------------------
 
+
 class TestEmailConfig:
     def test_configured_when_all_vars_set(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("SMTP_HOST", "smtp.gmail.com")
@@ -64,17 +67,13 @@ class TestEmailConfig:
         assert cfg["configured"] is False
         assert cfg["recipients"] == []
 
-    def test_from_email_falls_back_to_smtp_user(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_from_email_falls_back_to_smtp_user(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("SMTP_USER", "user@gmail.com")
         monkeypatch.delenv("EMAIL_FROM", raising=False)
         cfg = get_email_config()
         assert cfg["from_email"] == "user@gmail.com"
 
-    def test_from_email_uses_email_from_when_set(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_from_email_uses_email_from_when_set(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("EMAIL_FROM", "sender@example.com")
         monkeypatch.setenv("SMTP_USER", "user@gmail.com")
         cfg = get_email_config()
@@ -84,6 +83,7 @@ class TestEmailConfig:
 # ---------------------------------------------------------------------------
 # send_digest
 # ---------------------------------------------------------------------------
+
 
 class TestSendDigest:
     def _set_smtp_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -108,9 +108,7 @@ class TestSendDigest:
         assert call_args[0][0] == "sender@gmail.com"
         assert "recipient@example.com" in call_args[0][1]
 
-    def test_explicit_recipients_override_env(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_explicit_recipients_override_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
         self._set_smtp_env(monkeypatch)
         mock_smtp = MagicMock()
         mock_smtp.__enter__ = MagicMock(return_value=mock_smtp)
