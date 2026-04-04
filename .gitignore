@@ -1,0 +1,41 @@
+# ── Airflow runtime (lives in $AIRFLOW_HOME, default ~/airflow/) ─────────────
+airflow.cfg
+airflow.db
+airflow.db-journal
+simple_auth_manager_passwords.json.generated
+logs/
+plugins/
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+
+# ── Generated output (written by the DAG at runtime) ─────────────────────────
+data/
+
+# ── Python ───────────────────────────────────────────────────────────────────
+venv/
+.venv/        # created by Poetry when `virtualenvs.in-project = true`
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Type checking / linting caches ───────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# ── Pytest ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*~

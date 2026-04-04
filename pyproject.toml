@@ -1,0 +1,66 @@
+[project]
+name = "news-aggregator"
+version = "0.1.0"
+description = "NYT news aggregator with AI-powered summarization and Airflow scheduling"
+authors = [
+    {name = "Mohith Murlidhar"}
+]
+readme = "README.md"
+requires-python = ">=3.9,!=3.13,<3.14"
+dependencies = [
+    "anthropic>=0.40",
+    "requests>=2.32",
+    "python-dotenv>=1.0",
+    "loguru>=0.7",
+    "pydantic>=2.0",
+    "rich>=13.0",
+    "markdown>=3.6",
+]
+
+[project.optional-dependencies]
+# Install for running Airflow locally: poetry install --extras airflow
+airflow = [
+    "apache-airflow>=2.9",
+]
+# Install for OpenAI LLM support: poetry install --extras openai
+openai = [
+    "openai>=1.0",
+]
+# Install for development / CI: poetry install --extras dev
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.14",
+    "pytest-asyncio>=0.23",
+    "mypy>=1.10",
+    "ruff>=0.4",
+    "graphviz>=0.20",
+]
+
+[project.scripts]
+read-news = "news_aggregator.cli.read_news:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "news_aggregator", from = "src"}]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: requires live API keys (deselect with -m 'not integration')",
+]
