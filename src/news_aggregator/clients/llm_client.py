@@ -20,6 +20,7 @@ from __future__ import annotations
 import os
 import time
 from abc import ABC, abstractmethod
+from typing import Any
 
 from loguru import logger
 
@@ -59,7 +60,7 @@ class AnthropicProvider(BaseLLMProvider):
     ) -> None:
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         self.model = model
-        self._client = None
+        self._client: Any = None
 
     def is_available(self) -> bool:
         return bool(self.api_key)
@@ -98,7 +99,7 @@ class OpenAIProvider(BaseLLMProvider):
     ) -> None:
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         self.model = model
-        self._client = None
+        self._client: Any = None
 
     def is_available(self) -> bool:
         return bool(self.api_key)
@@ -119,7 +120,7 @@ class OpenAIProvider(BaseLLMProvider):
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.choices[0].message.content  # type: ignore[return-value]
+        return response.choices[0].message.content  # type: ignore[no-any-return]
 
 
 # ---------------------------------------------------------------------------
@@ -208,7 +209,7 @@ class LLMClient:
             ("ollama", OllamaProvider),
         ]:
             try:
-                candidate = cls(**self.kwargs)  # type: ignore[arg-type]
+                candidate = cls(**self.kwargs)
                 if candidate.is_available():
                     self.provider = candidate
                     self.provider_name = name

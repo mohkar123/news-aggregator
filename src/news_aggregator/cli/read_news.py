@@ -15,6 +15,7 @@ import argparse
 import json
 import webbrowser
 from pathlib import Path
+from typing import Any
 
 try:
     from rich.console import Console
@@ -52,7 +53,7 @@ def get_latest_html() -> Path | None:
 # ---------------------------------------------------------------------------
 
 
-def display_article_rich(article: dict, console: Console) -> None:  # type: ignore[valid-type]
+def display_article_rich(article: dict[str, Any], console: Console) -> None:
     """Render a single article using Rich formatting."""
     title = article.get("title") or article.get("headline", {}).get("main", "No title")
     abstract = article.get("abstract") or article.get("snippet", "")
@@ -71,7 +72,7 @@ def display_article_rich(article: dict, console: Console) -> None:  # type: igno
     console.print()
 
 
-def display_article_plain(article: dict) -> None:
+def display_article_plain(article: dict[str, Any]) -> None:
     """Render a single article as plain text."""
     title = article.get("title") or article.get("headline", {}).get("main", "No title")
     abstract = article.get("abstract") or article.get("snippet", "")
@@ -86,7 +87,7 @@ def display_article_plain(article: dict) -> None:
     print(f"  {url}\n")
 
 
-def list_sections(data: dict, console: Console | None = None) -> None:  # type: ignore[valid-type]
+def list_sections(data: dict[str, Any], console: Console | None = None) -> None:
     """Print a table of available sections and their article counts."""
     if _RICH and console:
         table = Table(title="Available Sections")
@@ -102,10 +103,10 @@ def list_sections(data: dict, console: Console | None = None) -> None:  # type: 
 
 
 def read_section(
-    data: dict,
+    data: dict[str, Any],
     section: str,
     limit: int = 10,
-    console: Console | None = None,  # type: ignore[valid-type]
+    console: Console | None = None,
 ) -> None:
     """Print articles from a named section."""
     sections = data.get("sections", {})
@@ -131,7 +132,7 @@ def read_section(
 # ---------------------------------------------------------------------------
 
 
-def interactive_mode(data: dict, console: Console | None = None) -> None:  # type: ignore[valid-type]
+def interactive_mode(data: dict[str, Any], console: Console | None = None) -> None:
     """Run a simple interactive menu for browsing the digest."""
     sections = list(data.get("sections", {}).keys())
 
@@ -185,7 +186,7 @@ def main() -> None:
     parser.add_argument("--limit", "-n", type=int, default=10, help="Max articles to show")
     args = parser.parse_args()
 
-    console = Console() if _RICH else None  # type: ignore[misc]
+    console = Console() if _RICH else None
 
     if args.open:
         html_path = get_latest_html()
