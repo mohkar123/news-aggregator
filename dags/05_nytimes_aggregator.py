@@ -14,7 +14,7 @@ SECTIONS:
 - Most Popular
 
 SCHEDULE:
-- Runs daily at 7 AM
+- Runs daily at 8 AM
 
 EMAIL SETUP:
 Set in .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,
@@ -54,7 +54,7 @@ SECTION_COLORS = {
 
 @dag(
     dag_id="05_nytimes_aggregator",
-    schedule="0 7 * * *",  # Daily at 7 AM
+    schedule="0 8 * * *",  # Daily at 8 AM
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["news", "nytimes", "production", "llm", "esg", "email"],
@@ -157,7 +157,7 @@ def nytimes_aggregator() -> None:
         from news_aggregator.clients.nyt_client import NYTimesClient, save_articles
 
         client = NYTimesClient()
-        articles = client.get_top_stories(section)
+        articles = client.get_top_stories(section, today_only=True)
 
         today = datetime.now().strftime("%Y-%m-%d")
         filepath = DATA_DIR / f"top_stories_{section}_{today}.json"
@@ -185,7 +185,7 @@ def nytimes_aggregator() -> None:
         from news_aggregator.clients.nyt_client import NYTimesClient, save_articles
 
         client = NYTimesClient()
-        articles = client.get_most_popular("viewed", period=1)
+        articles = client.get_most_popular("viewed", period=1, today_only=True)
 
         today = datetime.now().strftime("%Y-%m-%d")
         filepath = DATA_DIR / f"most_popular_{today}.json"

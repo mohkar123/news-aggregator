@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -59,11 +60,16 @@ class NYTimesClient:
     # Public methods
     # ------------------------------------------------------------------
 
-    def get_top_stories(self, section: str = "home") -> list[Article]:
+    def get_top_stories(
+        self,
+        section: str = "home",
+        today_only: bool = False,
+    ) -> list[Article]:
         """Fetch top stories for a section.
 
         Args:
             section: One of TOP_STORY_SECTIONS (default ``"home"``).
+            today_only: When ``True``, drop articles not published today.
 
         Returns:
             List of :class:`Article` objects.
@@ -71,19 +77,30 @@ class NYTimesClient:
         url = f"{_BASE}/topstories/v2/{section}.json"
         data = self._get(url)
         results: list[dict[str, Any]] = data.get("results", [])
-        logger.info("Fetched {} top stories for section '{}'", len(results), section)
-        return [Article.from_raw(r) for r in results]
+        articles = [Article.from_raw(r) for r in results]
+        if today_only:
+            today_str = date.today().isoformat()
+            articles = [a for a in articles if a.published_date.startswith(today_str)]
+        logger.info(
+            "Fetched {} top stories for section '{}' (today_only={})",
+            len(articles),
+            section,
+            today_only,
+        )
+        return articles
 
     def get_most_popular(
         self,
         type: str = "viewed",
         period: int = 1,
+        today_only: bool = False,
     ) -> list[Article]:
         """Fetch most popular articles.
 
         Args:
             type: ``"viewed"``, ``"shared"``, or ``"emailed"``.
             period: Number of days (1, 7, or 30).
+            today_only: When ``True``, drop articles not published today.
 
         Returns:
             List of :class:`Article` objects.
@@ -91,8 +108,17 @@ class NYTimesClient:
         url = f"{_BASE}/mostpopular/v2/{type}/{period}.json"
         data = self._get(url)
         results: list[dict[str, Any]] = data.get("results", [])
-        logger.info("Fetched {} most-popular ({}) articles", len(results), type)
-        return [Article.from_raw(r) for r in results]
+        articles = [Article.from_raw(r) for r in results]
+        if today_only:
+            today_str = date.today().isoformat()
+            articles = [a for a in articles if a.published_date.startswith(today_str)]
+        logger.info(
+            "Fetched {} most-popular ({}) articles (today_only={})",
+            len(articles),
+            type,
+            today_only,
+        )
+        return articles
 
     def search(
         self,
@@ -118,21 +144,28 @@ class NYTimesClient:
 
     def get_esg_articles(
         self,
-        days_back: int = 3,
+        days_back: int = 1,
         max_articles: int = 15,
     ) -> list[Article]:
         """Fetch ESG / sustainability articles via the Article Search API.
 
         Args:
-            days_back: How many days back to search.
+            days_back: How many days back to search (default 1 = today only).
             max_articles: Maximum number of results to return.
 
         Returns:
             List of :class:`Article` objects.
+
+        Note:
+            Requires the **Article Search** API to be enabled for your NYT
+            developer app at https://developer.nytimes.com/my-apps.
         """
         from datetime import datetime, timedelta, timezone
 
-        begin_date = (datetime.now(timezone.utc) - timedelta(days=days_back)).strftime("%Y%m%d")
+        now = datetime.now(timezone.utc)
+        begin_date = (now - timedelta(days=days_back)).strftime("%Y%m%d")
+        end_date = now.strftime("%Y%m%d")
+
         query = (
             'ESG OR sustainability OR "climate change" '
             'OR "renewable energy" OR "carbon emissions" OR governance'
@@ -143,12 +176,20 @@ class NYTimesClient:
             params={
                 "q": query,
                 "begin_date": begin_date,
+                "end_date": end_date,
                 "sort": "newest",
-                "fl": "headline,abstract,web_url,pub_date,byline",
+                # snippet is the reliably-populated short excerpt in Article Search;
+                # abstract is included as a fallback (often empty for newer articles)
+                "fl": "headline,snippet,abstract,web_url,pub_date,byline",
             },
         )
         docs: list[dict[str, Any]] = (data.get("response", {}).get("docs") or [])[:max_articles]
-        logger.info("Fetched {} ESG/sustainability articles", len(docs))
+        logger.info(
+            "Fetched {} ESG/sustainability articles (begin={}, end={})",
+            len(docs),
+            begin_date,
+            end_date,
+        )
         return [Article.from_raw(d) for d in docs]
 
     # ------------------------------------------------------------------

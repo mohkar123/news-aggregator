@@ -7,7 +7,7 @@ A practical NYTimes news aggregator with AI-powered summarization, scheduled via
 - Fetches top stories, most-popular, and ESG/sustainability articles from the NYT API
 - Summarizes each section using Claude (or OpenAI / Ollama as fallbacks)
 - Generates an HTML email digest and delivers it via SMTP
-- Scheduled daily at 7 AM via Airflow 3.0 TaskFlow API
+- Scheduled daily via Airflow 3.0 TaskFlow API
 - CLI reader for browsing digests in the terminal
 
 ---
@@ -324,7 +324,7 @@ use_data(result)   # XCom wired automatically
 ### Scheduling
 
 ```python
-schedule="0 7 * * *"   # Daily at 7 AM
+schedule="0 8 * * *"   # Daily at 8 AM
 schedule="@daily"       # Midnight
 schedule="@hourly"      # Every hour
 schedule=None           # Manual trigger only
