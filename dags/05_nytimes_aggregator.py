@@ -14,7 +14,7 @@ SECTIONS:
 - Most Popular
 
 SCHEDULE:
-- Runs daily at 7 AM
+- Runs daily at 8 AM
 
 EMAIL SETUP:
 Set in .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,
@@ -54,7 +54,7 @@ SECTION_COLORS = {
 
 @dag(
     dag_id="05_nytimes_aggregator",
-    schedule="0 7 * * *",  # Daily at 7 AM
+    schedule="0 8 * * *",  # Daily at 8 AM
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["news", "nytimes", "production", "llm", "esg", "email"],
