@@ -157,7 +157,7 @@ def nytimes_aggregator() -> None:
         from news_aggregator.clients.nyt_client import NYTimesClient, save_articles
 
         client = NYTimesClient()
-        articles = client.get_top_stories(section)
+        articles = client.get_top_stories(section, today_only=True)
 
         today = datetime.now().strftime("%Y-%m-%d")
         filepath = DATA_DIR / f"top_stories_{section}_{today}.json"
@@ -185,7 +185,7 @@ def nytimes_aggregator() -> None:
         from news_aggregator.clients.nyt_client import NYTimesClient, save_articles
 
         client = NYTimesClient()
-        articles = client.get_most_popular("viewed", period=1)
+        articles = client.get_most_popular("viewed", period=1, today_only=True)
 
         today = datetime.now().strftime("%Y-%m-%d")
         filepath = DATA_DIR / f"most_popular_{today}.json"
